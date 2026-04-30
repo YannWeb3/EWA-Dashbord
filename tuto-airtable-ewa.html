@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EWA — Guide Utilisateur Airtable</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --glass: rgba(30, 41, 59, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Background shapes */
+        .blob {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 70%);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(50px);
+        }
+
+        .blob-1 { top: -100px; left: -100px; }
+        .blob-2 { bottom: -100px; right: -100px; background: radial-gradient(circle, rgba(236, 72, 153, 0.1) 0%, rgba(236, 72, 153, 0) 70%); }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .logo-container {
+            display: inline-block;
+            padding: 15px 30px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .hero-image {
+            width: 100%;
+            border-radius: 24px;
+            margin-bottom: 60px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .hero-image:hover {
+            transform: scale(1.01);
+        }
+
+        .nav-progress {
+            position: sticky;
+            top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            padding: 8px 16px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot:hover, .nav-dot.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .tuto-section {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            scroll-margin-top: 100px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tuto-section:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.1);
+        }
+
+        .tuto-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .tuto-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .tuto-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .tuto-content {
+            color: var(--text-light);
+            font-size: 1.05rem;
+        }
+
+        .action-box {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+
+        .action-title {
+            color: var(--text);
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-list {
+            list-style: none;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+            font-size: 0.95rem;
+        }
+
+        .tip-box {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            margin-top: 25px;
+            border-radius: 4px 12px 12px 4px;
+            color: #fbbf24;
+        }
+
+        footer {
+            text-align: center;
+            padding: 60px 0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.8rem; }
+            .tuto-section { padding: 25px; }
+            .nav-progress { display: none; }
+        }
+
+        /* Progress indicator on the left for desktop */
+        .progress-sidebar {
+            position: fixed;
+            left: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        @media (max-width: 1200px) {
+            .progress-sidebar { display: none; }
+        }
+
+        .sidebar-dot {
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .sidebar-dot.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.3);
+        }
+
+        .sidebar-dot:hover::after {
+            content: attr(data-title);
+            position: absolute;
+            left: 25px;
+            top: -5px;
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="progress-sidebar">
+        <a href="#intro" class="sidebar-dot active" data-title="Accueil"></a>
+        <a href="#tuto1" class="sidebar-dot" data-title="Concept"></a>
+        <a href="#tuto2" class="sidebar-dot" data-title="Onboarding"></a>
+        <a href="#tuto3" class="sidebar-dot" data-title="Projets"></a>
+        <a href="#tuto4" class="sidebar-dot" data-title="Facturation"></a>
+        <a href="#tuto5" class="sidebar-dot" data-title="Trésorerie"></a>
+    </div>
+
+    <div class="container">
+        <header id="intro">
+            <div class="logo-container">
+                <h1>EWA — Airtable Guide</h1>
+            </div>
+            <p>Maîtrisez votre cockpit de production vidéo en 5 minutes.</p>
+        </header>
+
+        <img src="file:///C:/Users/Win10%20Pro%20x64/.gemini/antigravity/brain/dddd875a-cfeb-4a8c-a4a4-3dfa9cab6870/ewa_cockpit_dashboard_1777552149393.png" alt="Airtable Cockpit" class="hero-image">
+
+        <nav class="nav-progress">
+            <a href="#tuto1" class="nav-dot active">Concept</a>
+            <a href="#tuto2" class="nav-dot">Onboarding</a>
+            <a href="#tuto3" class="nav-dot">Projets</a>
+            <a href="#tuto4" class="nav-dot">Factures</a>
+            <a href="#tuto5" class="nav-dot">Chiffres</a>
+        </nav>
+
+        <!-- Tuto 1 -->
+        <section class="tuto-section" id="tuto1">
+            <span class="tuto-badge">Mini-Tuto #1</span>
+            <h2 class="tuto-title">🧭 Le Concept du Cockpit</h2>
+            <div class="tuto-content">
+                <p>Airtable est le <strong>cerveau</strong> de votre cabinet. Il est organisé de manière intuitive pour que vous ne perdiez jamais le fil.</p>
+                
+                <div class="action-box">
+                    <div class="action-title">💡 Comment naviguer ?</div>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div class="step-number">1</div>
+                            <div><strong>Tables</strong> : Les onglets en haut (Clients, Projets, Factures). Ce sont vos tiroirs.</div>
+                        </li>
+                        <li class="step-item">
+                            <div class="step-number">2</div>
+                            <div><strong>Vues</strong> : Menu à gauche. Changez de perspective (Liste, Kanban, Calendrier).</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tip-box">
+                    <strong>Astuce :</strong> Utilisez la barre de recherche en haut à droite pour trouver n'importe quoi en 1 seconde !
+                </div>
+            </div>
+        </section>
+
+        <!-- Tuto 2 -->
+        <section class="tuto-section" id="tuto2">
+            <span class="tuto-badge">Mini-Tuto #2</span>
+            <h2 class="tuto-title">🤝 Onboarding Client</h2>
+            <div class="tuto-content">
+                <p>Transformer un prospect en client actif déclenche une série d'automatisations magiques.</p>
+                
+                <div class="action-box">
+                    <div class="action-title">🚀 Lancer la machine</div>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div class="step-number">1</div>
+                            <div>Allez dans la table <strong>CLIENTS</strong>.</div>
+                        </li>
+                        <li class="step-item">
+                            <div class="step-number">2</div>
+                            <div>Passez le statut du prospect à <strong>"Actif"</strong> ✅.</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="result-box">
+                    <strong>Résultat instantané :</strong> Création du dossier Drive + Groupe WhatsApp + Message de bienvenue envoyé.
+                </div>
+            </div>
+        </section>
+
+        <!-- Tuto 3 -->
+        <section class="tuto-section" id="tuto3">
+            <span class="tuto-badge">Mini-Tuto #3</span>
+            <h2 class="tuto-title">🎬 Piloter vos Projets</h2>
+            <div class="tuto-content">
+                <p>Suivez l'avancement de chaque production vidéo en un coup d'œil.</p>
+                
+                <div class="action-box">
+                    <div class="action-title">📝 Gérer un projet</div>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div class="step-number">1</div>
+                            <div>Dans la table <strong>PROJETS</strong>, liez le client correspondant.</div>
+                        </li>
+                        <li class="step-item">
+                            <div class="step-number">2</div>
+                            <div>Ajoutez le <strong>Lien Drive</strong> et le <strong>Style</strong> souhaité.</div>
+                        </li>
+                        <li class="step-item">
+                            <div class="step-number">3</div>
+                            <div>Cochez les besoins (Script, Rushs). Le système relancera le client si besoin !</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tuto 4 -->
+        <section class="tuto-section" id="tuto4">
+            <span class="tuto-badge">Mini-Tuto #4</span>
+            <h2 class="tuto-title">💰 Valider et Facturer</h2>
+            <div class="tuto-content">
+                <p>Le moment le plus satisfaisant : transformer un travail fini en facture.</p>
+                
+                <div class="action-box">
+                    <div class="action-title">💎 Déclencher le paiement</div>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div class="step-number">1</div>
+                            <div>Dans la table <strong>LIVRABLES</strong>, vérifiez le montage.</div>
+                        </li>
+                        <li class="step-item">
+                            <div class="step-number">2</div>
+                            <div>Passez le statut à <strong>"Approuvé"</strong>.</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="result-box">
+                    <strong>Action automatique :</strong> Facture créée en brouillon dans Tiime + Notification de validation envoyée.
+                </div>
+            </div>
+        </section>
+
+        <!-- Tuto 5 -->
+        <section class="tuto-section" id="tuto5">
+            <span class="tuto-badge">Mini-Tuto #5</span>
+            <h2 class="tuto-title">📈 Suivi de Trésorerie</h2>
+            <div class="tuto-content">
+                <p>Gardez le contrôle total sur vos finances sans effort de comptabilité.</p>
+                
+                <div class="action-box">
+                    <div class="action-title">🔍 Analyser les chiffres</div>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div class="step-number">1</div>
+                            <div>Allez dans la table <strong>FACTURES</strong> pour voir les statuts.</div>
+                        </li>
+                        <li class="step-item">
+                            <div class="step-number">2</div>
+                            <div>Utilisez le filtre <strong>"En attente"</strong> pour identifier les impayés.</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tip-box">
+                    Les relances sont automatiques (J+7, J+14...). Dormez tranquille !
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>EWA Management Hub — Propulsé par n8n & Claude 4.5</p>
+            <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.6;">© 2026 EWA Production. Tous droits réservés.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Intersection Observer to update active state in sidebar and nav
+        const sections = document.querySelectorAll('section, header');
+        const dots = document.querySelectorAll('.sidebar-dot');
+        const navDots = document.querySelectorAll('.nav-dot');
+
+        const options = {
+            threshold: 0.3
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    
+                    // Update sidebar
+                    dots.forEach(dot => {
+                        dot.classList.remove('active');
+                        if (dot.getAttribute('href') === `#${id}`) dot.classList.add('active');
+                    });
+
+                    // Update nav dots
+                    navDots.forEach(dot => {
+                        dot.classList.remove('active');
+                        if (dot.getAttribute('href') === `#${id}`) dot.classList.add('active');
+                    });
+                }
+            });
+        }, options);
+
+        sections.forEach(section => observer.observe(section));
+    </script>
+</body>
+
+</html>
